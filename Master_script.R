@@ -1,0 +1,73 @@
+#==============================================================================================================================#
+#                                       MASTER SCRIPT                                                                          #
+#==============================================================================================================================#
+
+rm(list = ls())
+
+#=============================================#
+#       Load data files                       #
+#=============================================#
+
+#=======================#                                                                                             
+# Initiatie sub-scripts #                                                                                             
+source('libraries.R')
+source('predicted_prevalence_functions.R')
+source('MCMC_functions_singledataset.R')
+source('plot_MCMC_output_functions.R')
+source('process_MCMC_output_functions.R')
+
+#======================#
+#    load data         #
+#======================#
+
+
+#===============================================#
+#  run MCMC (single dataset; simple FoI model)  #
+
+# 1) set initial parameter values (FoI, se, sp) for two chains
+inits1 <- c(0.1, 0.93, 0.96)   # e.g. Ab−EITB, rT24H (se: 0.96 (0.93-0.99), sp: 0.98 (0.96-1), Noh et al. 2014) 
+inits2 <- c(0.0001, 0.99, 0.999) # 
+
+# 2) set standard deviation of proposal distribution
+sd <- 0.001 # aim for 0.25 acceptance: (needs very low variance otherwise NA produced)
+# if acceptances too small , decrease s.d. (variance of proposal),
+# if acceptances to big then increase s.d. (variance of proposal)
+
+# covariance
+cov <- diag(sd^2, 3)
+
+# number of iterations
+niter <- 2000000
+
+# burnin (chains to discard before convergence)
+burnin <- 500000
+
+# run MCMC (chain 1)
+set.seed(123) # for reproducibility
+simple_out_chain1 <- MCMC_simple_model(inits1, niter, cov)  # initiate the MCMC
+
+# run MCMC (chain 1)
+set.seed(123)
+simple_out_chain2 <- MCMC_simple_model(inits2, niter, cov)  # initiate the MCMC
+
+# whats the acceptance ratio (aiming for 0.25)
+sum(simple_out_chain1$Acceptances)/niter
+sum(simple_out_chain2$Acceptances)/niter
+
+# plot MCMC outputs #
+chains_plot <- chains_plot_func1(inits1 = inits1, chain1 = simple_out_chain1, chain2 = simple_out_chain2)
+
+histograms_plot <- histogram_plot_func1(inits1 = inits1, burnin = burnin, niter = niter, 
+                                        chain1 = simple_out_chain1, chain2 = simple_out_chain2)
+
+#======================# 
+# process MCMC outputs # 
+
+chains1_output <- simple_out_chain1$MCMC_Output
+chains2_output <- simple_out_chain2$MCMC_Output
+
+# remove burnin and proceed with reducing autocorrelation (thinning by sub-sampling)
+PC_simple <-Process_chains(chains1_output, chains2_output, burnin=500000, sample=2000) # set burnin to 0 if already
+
+# View the process chains (from the autocorrelation plots, sampling every 20th value seems appropriate)
+plot_chains(PC_simple[[1]], PC_simple[[2]])
