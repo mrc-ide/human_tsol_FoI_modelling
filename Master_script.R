@@ -11,6 +11,7 @@ rm(list = ls())
 #=======================#                                                                                             
 # Initiatie sub-scripts #                                                                                             
 source('libraries.R')
+source('diagnostic_parameter_functions.R')
 source('predicted_prevalence_functions.R')
 source('MCMC_functions_singledataset.R')
 source('plot_MCMC_output_functions.R')
@@ -20,7 +21,32 @@ source('process_MCMC_output_functions.R')
 #    load data         #
 #======================#
 
+test_data_singledataset <- read.csv("~/human_tsol_FoI_modelling/data/test_data_singledataset.csv")
 
+data <- test_data_singledataset
+
+names(data) <- c("age", "pos_pigs", "n_pigs","prev","lower","upper")
+
+#===============================================#
+#  optimise parameters for diagnostic priors    #
+
+# sensitivity #
+sensitivity_parameters <- estimate_alpha_beta_par_diagnostic(input_alpha = 96, input_beta = 4, 
+                                                             target_l = 0.93, target_u = 0.99)
+
+alpha_se <- sensitivity_parameters[[1]]
+alpha_se 
+beta_se <- sensitivity_parameters[[2]]
+beta_se
+
+# specifcity #
+specificity_parameters <- estimate_alpha_beta_par_diagnostic(input_alpha = 98, input_beta = 2, 
+                                                             target_l = 0.96, target_u = 1)
+
+alpha_sp <- specificity_parameters[[1]]
+alpha_sp
+beta_sp <- specificity_parameters[[2]]
+beta_sp
 #===============================================#
 #  run MCMC (single dataset; simple FoI model)  #
 
@@ -37,7 +63,7 @@ sd <- 0.001 # aim for 0.25 acceptance: (needs very low variance otherwise NA pro
 cov <- diag(sd^2, 3)
 
 # number of iterations
-niter <- 2000000
+niter <- 100000
 
 # burnin (chains to discard before convergence)
 burnin <- 500000
@@ -60,8 +86,8 @@ chains_plot <- chains_plot_func1(inits1 = inits1, chain1 = simple_out_chain1, ch
 histograms_plot <- histogram_plot_func1(inits1 = inits1, burnin = burnin, niter = niter, 
                                         chain1 = simple_out_chain1, chain2 = simple_out_chain2)
 
-#======================# 
-# process MCMC outputs # 
+#=============================================# 
+#         process MCMC outputs                # 
 
 chains1_output <- simple_out_chain1$MCMC_Output
 chains2_output <- simple_out_chain2$MCMC_Output
