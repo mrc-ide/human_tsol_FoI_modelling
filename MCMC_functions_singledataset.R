@@ -18,10 +18,10 @@ prior <- function(par) {
   lambda_prior = dunif(lambda, min = 0.000001, max = 12, log = T)
   
   se = se
-  se_prior = dbeta(se, alpha_rT24H_se, beta_rT24H_se, log = T)
+  se_prior = dbeta(se, alpha_se, beta_se, log = T)
   
   sp = sp
-  sp_prior = dbeta(sp, alpha_rT24H_sp, beta_rT24H_sp, log = T)
+  sp_prior = dbeta(sp, alpha_sp, beta_sp, log = T)
   
   return(sum(c(lambda_prior, se_prior, sp_prior)))
   

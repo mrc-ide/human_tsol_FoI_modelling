@@ -30,8 +30,7 @@ chains_plot_func1 <- function(inits1, chain1, chain2) {
 
 #### posterior histogram plots #####
 
-histogram_plot_func1 <-
-  function(inits1, burnin, niter, chain1, chain2) {
+histogram_plot_func1 <- function(inits1, burnin, niter, chain1, chain2) {
     par(mfrow = (c(1, length(inits1))))
     for (i in 1:length(inits1)) {
       if (i == 1) {
@@ -43,10 +42,7 @@ histogram_plot_func1 <-
       }
       
       hist(
-        c(
-          simple_out_chain1$MCMC_Output[burnin:niter, i],
-          simple_out_chain2$MCMC_Output[burnin:niter, i]
-        ),
+        c(simple_out_chain1$MCMC_Output[burnin:niter, i], simple_out_chain2$MCMC_Output[burnin:niter, i]),
         xlab = ylab,
         main = ""
       )
