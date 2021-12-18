@@ -11,6 +11,7 @@ rm(list = ls())
 #=======================#                                                                                             
 # Initiatie sub-scripts #                                                                                             
 source('libraries.R')
+source('plot_data_modelfit_functions.R')
 source('diagnostic_parameter_functions.R')
 source('predicted_prevalence_functions.R')
 source('MCMC_functions_singledataset.R')
@@ -26,6 +27,8 @@ test_data_singledataset <- read.csv("~/human_tsol_FoI_modelling/data/test_data_s
 data <- test_data_singledataset
 
 names(data) <- c("age", "pos_pigs", "n_pigs","prev","lower","upper")
+
+plot_ageprev_func(data) # plot age-prevalence data
 
 #===============================================#
 #  optimise parameters for diagnostic priors    #
