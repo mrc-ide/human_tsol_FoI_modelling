@@ -30,7 +30,7 @@ prior <- function(par) {
 
 # Likelihood Function
 loglike_simple <- function(data, par){
-  predicted_seroprevalence = predicted_prev_func(data, par)
+  predicted_seroprevalence = predicted_prev_func(age = data$age, par)
   sum(dbinom(data$pos_pigs, data$n_pigs, predicted_seroprevalence, log=T))
 }
 

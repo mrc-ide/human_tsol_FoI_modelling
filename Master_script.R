@@ -86,14 +86,42 @@ chains1_output <- simple_out_chain1$MCMC_Output
 chains2_output <- simple_out_chain2$MCMC_Output
 
 # remove burnin and proceed with reducing autocorrelation (thinning by sub-sampling)
-PC_simple <-Process_chains(chains1_output, chains2_output, burnin=50000, sample=50) # set burnin to 0 if already
+PC_simple <-Process_chains(chains1_output, chains2_output, burnin = burnin, sample = 50) # set burnin to 0 if already
 
 # View the process chains (from the autocorrelation plots, sampling every 20th value seems appropriate)
 plot_chains(PC_simple[[1]], PC_simple[[2]])
 
+# check autocorrelation of chains for each parameter (to inform sub-sampling)
 check_autocorr <- determine_autocorrelation_func(processed_chain = PC_simple)
 
 check_autocorr[1] # autocorrelation significance parameter 1 (e.g. lambda)
 check_autocorr[2] # autocorrelation significance parameter 2 (e.g. se)
 check_autocorr[3] # autocorrelation significance parameter 1 (e.g. sp)
+
+# plot loglikelihood
+loglikchains_plot_func1(chain1 = simple_out_chain1, chain2 = simple_out_chain2)
+
+#==============================================================================#
+# Obtain parameter values (median & credible) & plot posterior distributions   #
+
+simple_model_parameters <- obtain_parameter_values_func(processed_chains = PC_simple)
+simple_model_parameters
+
+plot_posterior_distrib_func1(processed_chains = PC_simple, number_pars_to_plot = 3)
+
+#============================================================#
+# calculate Deviance Information Criterion (DIC) - model fit #
+
+DIC_result <- calculate_DIC_func(chain = simple_out_chain1, burnin = burnin, subsample = 50)
+DIC_result  # 1) D bar model1, 2) modal posterior likelihood, 3) modal posterior deviance, 4) DIC
+
+#====================================================================================================================#
+# calculate (with posterior parameter estimates) predicted (sero)prevalence and unceetainty intervals (for plotting) #
+
+predicted_prev_output <- calculate_predicted_prevalence_function(max_age_toplot = 90, data = data, 
+                                                                 pars = simple_model_parameters,
+                                                                 processed_chains = PC_simple)
+
+predicted_prev_output[[1]] # predicted prevalence plot
+
 
