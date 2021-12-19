@@ -26,7 +26,9 @@ test_data_singledataset <- read.csv("~/human_tsol_FoI_modelling/data/test_data_s
 
 data <- test_data_singledataset
 
-names(data) <- c("age", "pos_pigs", "n_pigs","prev","lower","upper")
+#data <- data_frame_Theis
+
+names(data) <- c("age", "pos", "n","prev","lower","upper")
 
 plot_ageprev_func(data) # plot age-prevalence data
 
