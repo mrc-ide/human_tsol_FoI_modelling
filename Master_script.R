@@ -125,5 +125,5 @@ predicted_prev_output <- calculate_predicted_prevalence_function(max_age_toplot 
                                                                  processed_chains = PC_simple)
 
 predicted_prev_output[[1]] # predicted prevalence plot
-
-
+predicted_prev_output[[2]] # predicted prevalence plot
+predicted_prev_output[[3]] # predicted prevalence plot

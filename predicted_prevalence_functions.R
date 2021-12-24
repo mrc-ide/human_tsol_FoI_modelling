@@ -77,7 +77,25 @@ calculate_predicted_prevalence_function <- function (max_age_toplot, data, pars,
                                        ymax=upper_credible_interval_processed), fill="purple", alpha=0.1)+
     ylim(0,1.0)
   
-  return(list(p, predicted_median_curve, predicted_CrI))
+  p2 <- ggplot() +   
+    theme(legend.position = 'none') +   
+    geom_point(data=predicted_median_curve, aes(x=age, y=prev))+
+    geom_errorbar(data=predicted_median_curve,aes(x=age, y=prev, ymin=lower, ymax=upper), width=0.8)+
+    geom_line(data=predicted_median_curve,aes(x=age, y=predicted), size= 1.1, colour='purple')+
+    geom_ribbon(data=predicted_CrI,aes(x=age, ymin=lower_credible_interval_processed,
+                                       ymax=upper_credible_interval_processed), fill="purple", alpha=0.1)+
+    ylim(0,0.5)
+  
+  p3 <- ggplot() +   
+    theme(legend.position = 'none') +   
+    geom_point(data=predicted_median_curve, aes(x=age, y=prev))+
+    geom_errorbar(data=predicted_median_curve,aes(x=age, y=prev, ymin=lower, ymax=upper), width=0.8)+
+    geom_line(data=predicted_median_curve,aes(x=age, y=predicted), size= 1.1, colour='purple')+
+    geom_ribbon(data=predicted_CrI,aes(x=age, ymin=lower_credible_interval_processed,
+                                       ymax=upper_credible_interval_processed), fill="purple", alpha=0.1)+
+    ylim(0,0.25)
+  
+  return(list(p, p2, p3, predicted_median_curve, predicted_CrI))
 
 }
 
