@@ -124,6 +124,31 @@ predicted_prev_output <- calculate_predicted_prevalence_function(max_age_toplot 
                                                                  pars = simple_model_parameters,
                                                                  processed_chains = PC_simple)
 
-predicted_prev_output[[1]] # predicted prevalence plot
-predicted_prev_output[[2]] # predicted prevalence plot
-predicted_prev_output[[3]] # predicted prevalence plot
+predicted_prev_output[[1]] # predicted prevalence plot (ylim 0-100% prev)
+predicted_prev_output[[2]] # predicted prevalence plot (ylim 0-50% prev)
+predicted_prev_output[[3]] # predicted prevalence plot (ylim 0-25% prev)
+
+#=========================================================================================================================#
+
+#===============================================#
+#  run MCMC (single dataset; simple FoI model)  #
+
+inits1 <- c(0.004, 0.93, 0.96, 0.001)   # Initial parameter values to initiate chains
+inits2 <- c(0.0001, 0.99, 0.999, 0.01) # e.g. Ab−EITB, rT24H (se: 0.96 (0.93-0.99), sp: 0.98 (0.96-1), Noh et al. 2014) 
+
+sd <- 0.004 # set standard deviation of proposal distribution; aim for 0.25 acceptance
+cov <- diag(sd^2, 4)# covariance
+niter <- 100000 # number of iterations
+burnin <- 50000 # burnin (chains to discard before convergence)
+
+# run MCMC (chain 1)
+set.seed(123) # for reproducibility
+reversible_out_chain1 <- MCMC_reversible_model(inits1, niter, cov, simple_lambda_median = 0.00042)  # initiate the MCMC
+
+# run MCMC (chain 1)
+set.seed(123)
+reversible_out_chain2 <- MCMC_reversible_model(inits1, niter, cov, simple_lambda_median = 0.00042)   # initiate the MCMC
+
+# whats the acceptance ratio (aiming for 0.25)
+sum(reversible_out_chain1$Acceptances)/niter
+sum(reversible_out_chain2$Acceptances)/niter

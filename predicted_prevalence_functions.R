@@ -100,3 +100,15 @@ calculate_predicted_prevalence_function <- function (max_age_toplot, data, pars,
 }
 
 
+#===================================#
+# reversible model (single dataset) #
+
+predicted_prev_reversible_func <- function(age, par){
+  
+  lambda <- par[1]; se<- par[2]; sp <- par[3]; rho <- par[4]
+  
+  tp <-  (lambda/(lambda + rho)) * (1 - exp(-(lambda + rho) *(data$age)))   # true prevalence
+  op <- (1-sp) + (se+sp-1) * tp      # observed prevalence Diggle et al 2011 Epi Res Int
+  op
+}
+
