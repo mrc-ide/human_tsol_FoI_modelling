@@ -1,5 +1,5 @@
 #==============================================================================================================================#
-#                                       MASTER SCRIPT                                                                          #
+#                                       MASTER SCRIPT  - single dataset fitting                                                #
 #==============================================================================================================================#
 
 rm(list = ls())
@@ -65,11 +65,11 @@ burnin <- 50000 # burnin (chains to discard before convergence)
 
 # run MCMC (chain 1)
 set.seed(123) # for reproducibility
-simple_out_chain1 <- MCMC_simple_model(inits1, niter, cov)  # initiate the MCMC
+simple_out_chain1 <- MCMC_simple_model(inits1, niter, cov, fitting = "single dataset")  # initiate the MCMC
 
 # run MCMC (chain 1)
 set.seed(123)
-simple_out_chain2 <- MCMC_simple_model(inits2, niter, cov)  # initiate the MCMC
+simple_out_chain2 <- MCMC_simple_model(inits2, niter, cov, fitting = "single dataset")  # initiate the MCMC
 
 # whats the acceptance ratio (aiming for 0.25)
 sum(simple_out_chain1$Acceptances)/niter
@@ -144,11 +144,13 @@ burnin <- 50000 # burnin (chains to discard before convergence)
 
 # run MCMC (chain 1)
 set.seed(123) # for reproducibility
-reversible_out_chain1 <- MCMC_reversible_model(inits1, niter, cov, simple_lambda_median = 0.00042)  # initiate the MCMC (& specify lambda median from simple model to inform the lognromal prior)
+reversible_out_chain1 <- MCMC_reversible_model(inits1, niter, cov, simple_lambda_median = 0.00042,
+                                               fitting = "single dataset")  # initiate the MCMC (& specify lambda median from simple model to inform the lognromal prior)
 
 # run MCMC (chain 1)
 set.seed(123)
-reversible_out_chain2 <- MCMC_reversible_model(inits2, niter, cov, simple_lambda_median = 0.00042)   # initiate the MCMC (& specify lambda median from simple model to inform the lognromal prior)
+reversible_out_chain2 <- MCMC_reversible_model(inits2, niter, cov, simple_lambda_median = 0.00042,
+                                               fitting = "single dataset")   # initiate the MCMC (& specify lambda median from simple model to inform the lognromal prior)
 
 # whats the acceptance ratio (aiming for 0.25)
 sum(reversible_out_chain1$Acceptances)/niter

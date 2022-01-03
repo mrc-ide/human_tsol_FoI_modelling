@@ -2,8 +2,6 @@
 #                           MCMC function (single dataset)                                                                    #
 #=============================================================================================================================#
 
-
-
 #============================================================#
 #       Simple FoI model (single dataset)                    #
 #============================================================#
@@ -57,7 +55,7 @@ proposal_function_simple <- function(par, cov) {
 
 
 # Run MCMC Function 
-MCMC_simple_model <- function(inits,  number_of_iterations, cov) {
+MCMC_simple_model <- function(inits,  number_of_iterations, cov, fitting) {
   
   # Storage for Output
   MCMC_output <- matrix(nrow = number_of_iterations + 1, ncol=length(inits)) # ncol is number of parameters
@@ -70,13 +68,37 @@ MCMC_simple_model <- function(inits,  number_of_iterations, cov) {
   # Running the Actual MCMC
   for (i in 1:number_of_iterations){
     
+    if(fitting == "single dataset"){
     proposed_parameter_value <- proposal_function_simple(MCMC_output[i,], cov)  #new proposed paramater value(s) with a given s.d. (step size)
+    }
     
+    if(fitting == "multiple datasets"){
+      proposed_parameter_value <- proposal_function_simple_multidata(MCMC_output[i,], cov)  #new proposed paramater value(s) with a given s.d. (step size)
+    }
+    
+    if(fitting == "single dataset"){
     current_likelihood <- loglike_simple(data, MCMC_output[i,]) # likelihood 
+    }
     
+    if(fitting == "multiple datasets"){
+      current_likelihood <- loglike_simple_multidata(data, MCMC_output[i,]) # likelihood 
+    }
+    
+    if(fitting == "single dataset"){
     current_posterior <- posterior_function_simple(data, MCMC_output[i,]) # current posterior likelihood from MCMC
+    }
     
+    if(fitting == "multiple datasets"){
+      current_posterior <- posterior_function_simple_multidata(data, MCMC_output[i,]) # current posterior likelihood from MCMC
+    }
+    
+    if(fitting == "single dataset"){
     proposed_posterior <- posterior_function_simple(data, proposed_parameter_value) # proposed posterior likelihood with new proposed par value
+    }
+    
+    if(fitting == "multiple datasets"){
+      proposed_posterior <- posterior_function_simple_multidata(data, proposed_parameter_value) # proposed posterior likelihood with new proposed par value
+    }
     
     likelihood_ratio = exp(proposed_posterior - current_posterior);
     
@@ -249,3 +271,48 @@ MCMC_reversible_model <- function(inits,  number_of_iterations, cov, simple_lamb
   list[["Posterior_Output"]] <- Logposterior_storage
   return(list)
 }
+
+#============================================================#
+#       Simple FoI model (multiple dataset)                  #
+#============================================================#
+
+prior_simple_multidata <- function(par) {
+  # Sp and Se are the first to parameters inthe vector of parameters
+  sp <- par[1]
+  se <- par[2]
+  
+  # Site-specific lamdas are the remianing parameters in the vector of parameters
+  lambda_par <- par[3:length(par)]
+  
+  lambda_prior = sum(dunif(lambda_par, min = 0.00001, max = 12, log = T))
+  
+  # diagnostic priors
+  se_prior = dbeta(se,alpha_se, beta_se, log = T) # 88.89*0.185, 11.11*0.335
+  sp_prior = dbeta(sp,alpha_sp, beta_sp, log = T)
+  
+  return(sum(c(lambda_prior, se_prior, sp_prior)))
+}
+
+# likelihood calculation given each parameter set & data
+loglike_simple_multidata <- function(data, par){
+  predicted_seroprevalence = predicted_prev_func_multidataset(age = data$age, par)
+  sum(dbinom(data$pos, data$n, predicted_seroprevalence, log=T))
+}
+
+# Posterior Function (multidata)
+posterior_function_simple_multidata <- function(data, par){
+  loglike_simple_multidata(data, par) + prior_simple_multidata(par)
+}
+
+# proposal func for multiple data
+proposal_function_simple_multidata <- function(par, cov) {
+  
+  ## draw propopsals all from a multivariate normal & re-draw if any <=0 or > 12 (for upper limit of FoI)
+  repeat {
+    proposed <- mvrnorm(1, par, cov)
+    if(all(proposed>0 & all(proposed[1:length(par)]<12))){break} 
+  }
+  
+  return(proposed)
+  
+}  

@@ -3,9 +3,9 @@
 #=============================================================================================================================#
 
 #======================================#
-# simple model - single dataset        #
+#       Single datasets                #
 
-#### chains plot #####
+#### chains plot (single dataset) #####
 
 chains_plot_func <- function(inits1, chain1, chain2, model) {
   
@@ -46,6 +46,7 @@ chains_plot_func <- function(inits1, chain1, chain2, model) {
     }}
   
 }
+
 
 #### posterior histogram plots #####
 
@@ -121,4 +122,106 @@ plot_posterior_distrib_func <- function(processed_chains, model){
   
 }
 
+#================================================#
+#           Multiple datasets                   #
+
+#### chains plot (multiple datasets) #####
+
+chains_plot_multidatasets_func <- function(inits1, chain1, chain2, model, number_datasets) {
+  
+  if(model == "simple" && number_datasets == 5){
+    par(mfrow = (c(1, length(inits1))))
+    for (i in 1:length(inits1)) {
+      if (i == 1) {
+        ylab = "sp"
+      } else if (i == 2) {
+        ylab = "se"
+      }  else if (i ==2) {
+        ylab="lambda (site 1)"
+    } else if (i==4) {
+      ylab="lambda (site 2)"
+    } else if (i==5) {
+      ylab="lambda (site 3)"
+    } else if (i==6) {
+      ylab="lambda (site 4)"
+    } else {
+      ylab="lambda (site 5)"
+    }
+      plot(
+        simple_out_chain1$MCMC_Output[, i],
+        type = "l",
+        ylab = ylab,
+        xlab = "iter"
+      )
+      lines(simple_out_chain2$MCMC_Output[, i], col = "red")
+      
+    }}
+  
+  if(model == "reversible"){
+    par(mfrow=(c(1,length(inits1))))
+    for (i in 1:length(inits1)) {
+      if (i==1) {
+        ylab="lambda"
+      } else if (i==2) {
+        ylab="se"
+      } else if (i==3) {
+        ylab="sp"
+      } else {
+        ylab="rho"
+      }
+      plot(reversible_out_chain1$MCMC_Output[,i], type = "l", ylab=ylab, xlab="iter", col = "black")
+      lines(reversible_out_chain2$MCMC_Output[,i], col="red")
+    }}
+  
+}
+
+#### posterior histogram plots #####
+
+histogram_plot_multidatasets_func <- function(inits1, burnin, niter, chain1, chain2, model, number_datasets) {
+  
+  if(model == "simple" && number_datasets == 5){
+    par(mfrow = (c(1, length(inits1))))
+    for (i in 1:length(inits1)) {
+      if (i == 1) {
+        ylab = "sp"
+      } else if (i == 2) {
+        ylab = "se"
+      }  else if (i ==2) {
+        ylab="lambda (site 1)"
+      } else if (i==4) {
+        ylab="lambda (site 2)"
+      } else if (i==5) {
+        ylab="lambda (site 3)"
+      } else if (i==6) {
+        ylab="lambda (site 4)"
+      } else {
+        ylab="lambda (site 5)"
+      }
+      hist(
+        c(simple_out_chain1$MCMC_Output[burnin:niter, i], simple_out_chain2$MCMC_Output[burnin:niter, i]),
+        xlab = ylab,
+        main = ""
+      )
+      
+    }}
+  
+  if(model == "reversible"){
+    par(mfrow=(c(1,length(inits1))))
+    for (i in 1:length(inits1)) {
+      if (i==1) {
+        ylab="lambda"
+      } else if (i==2) {
+        ylab="se"
+      } else if (i==3) {
+        ylab="sp"
+      } else {
+        ylab="rho"
+      }
+      
+      hist(c(reversible_out_chain1$MCMC_Output[burnin:niter,i],reversible_out_chain2$MCMC_Output[burnin:niter,i]), 
+           xlab = ylab, main="")
+      
+    }}
+  
+}
 
