@@ -116,12 +116,34 @@ MCMC_simple_model <- function(inits,  number_of_iterations, cov) {
 #===========================================================#
 
 # prior distributions for each parameter #
+# specify lambda median from simple model to inform the lognromal prior
 prior_function_reversible <- function(par, simple_lambda_median) {
   
   lambda <- par[1]; se<- par[2]; sp <- par[3]; rho <- par[4]
   
   lambda = lambda
   lambda_prior = dlnorm(lambda, log(simple_lambda_median), 1, log=TRUE)
+  
+  se = se
+  se_prior = dbeta(se, alpha_se, beta_se, log = T)
+  
+  sp = sp
+  sp_prior = dbeta(sp, alpha_sp, beta_sp, log = T)
+  
+  rho = rho
+  rho_prior = dunif(rho, min = 0.000001, max = 12, log= T)
+  
+  return(sum(c(lambda_prior, se_prior, sp_prior, rho_prior)))
+  
+}
+
+# when calculating postrior after MCMC fitting (i.e. replace simple median lambda with new fitted lambda)
+prior_function_reversible2 <- function(par) {
+  
+  lambda <- par[1]; se<- par[2]; sp <- par[3]; rho <- par[4]
+  
+  lambda = lambda
+  lambda_prior = dlnorm(lambda, log(lambda), 1, log=TRUE)
   
   se = se
   se_prior = dbeta(se, alpha_se, beta_se, log = T)
@@ -144,12 +166,20 @@ log_lik_func_reversible <- function(data, par){
   sum(dbinom(data$pos, data$n, predicted_seroprevalence, log=T))
 }
 
-# posterior calculation
+# posterior calculation (for MCMC fitting)
 posterior_function_reversible<- function(data, par, simple_lambda_median){
   
   lambda <- par[1]; se<- par[2]; sp <- par[3]; rho <- par[4]
   
   log_lik_func_reversible(data, par) + prior_function_reversible(par, simple_lambda_median)
+}
+
+# posterior calculation (post mCMC fitting when have fitted lambda)
+posterior_function_reversible2 <- function(data, par){
+  
+  lambda <- par[1]; se<- par[2]; sp <- par[3]; rho <- par[4]
+  
+  log_lik_func_reversible(data, par) + prior_function_reversible2(par)
 }
 
 # proposal function for MCMC
