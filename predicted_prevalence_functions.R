@@ -64,6 +64,31 @@ predicted_prev_reversible_func2 <- function(age, par){
   op
 }
 
+#=====================================#
+# reversible model (multiple dataset) #
+
+# Model
+predicted_prev_reversible_func_multidataset <- function(age, par){
+  # Sp and Se are the first to parameters in the vector of parameters
+  sp <- par[1]
+  se <- par[2]
+  # Site-specific lamdas are parameters 3: number of datasets in the vector of parameters
+  lambda_par <- par[3:(length(unique(data$dataset))+2)]
+  # Repeat each site specific lambda for each age group in each dataset
+  lambda_all <- lambda_par[data$dataset]
+  
+  # Site-specific rhos are parameters 
+  rho_par <- par[(2+length(unique(data$dataset))+1):(7+length(unique(data$dataset)))]
+  # Repeat each site specific lambda for each age group in each dataset
+  rho_all <- rho_par[data$dataset]
+  
+  # Prediction
+  tp <-  (lambda_all/(lambda_all + rho_all)) *(1 - exp(-(lambda_all + rho_all) * (data$age)))  # true prevalence
+  op <- (1-sp) + (se+sp-1)*tp      # observed prevalence Diggle et al 2011 Epi Res Int
+  op
+}
+
+
 #================================================================#
 # produce predicted prevalence curves (fitted to single dataset) #
 

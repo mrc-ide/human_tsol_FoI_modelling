@@ -91,3 +91,37 @@ histograms_plot <- histogram_plot_multidatasets_func(inits1 = inits1, burnin = b
 
 chains1_output <- simple_out_chain1$MCMC_Output
 chains2_output <- simple_out_chain2$MCMC_Output
+
+
+#===========================================================================================================================#
+#======================================================#
+#  run MCMC (multiple datasets; reversible FoI model)  #
+
+inits1 <- c(0.99, 0.95, 0.00003, 0.001,0.005,0.0001,0.0001,0.01,0.01,0.01,0.01,0.01)  # Initial parameter values to initiate chains
+inits2 <- c(0.96, 0.99, 0.001, 0.04, 0.2, 0.04,0.04,0.1,0.1,0.1,0.1,0.1) # e.g. Ab−EITB, rT24H (se: 0.96 (0.93-0.99), sp: 0.98 (0.96-1), Noh et al. 2014) 
+sd <- 0.0006 # set standard deviation of proposal distribution; aim for 0.25 acceptance
+cov <- diag(sd^2, 2+(2*length(unique(data$dataset)))) # covariance
+niter <- 100000 # number of iterations
+burnin <- 50000 # burnin (chains to discard before convergence)
+
+# run MCMC (chain 1)
+set.seed(123) # for reproducibility
+reversible_out_chain1 <- MCMC_reversible_model(inits1, niter, cov, simple_lambda_median = c(0.00007756672,
+                                                                                            0.003205126,
+                                                                                            0.008291567,
+                                                                                            0.003112397,
+                                                                                            0.003481667), 
+                                               fitting = "multiple datasets")  # initiate the MCMC
+
+# run MCMC (chain 1)
+set.seed(123)
+reversible_out_chain2 <- MCMC_reversible_model(inits2, niter, cov, simple_lambda_median = c(0.00007756672,
+                                                                                            0.003205126,
+                                                                                            0.008291567,
+                                                                                            0.003112397,
+                                                                                            0.003481667),
+                                               fitting = "multiple datasets")  # initiate the MCMC
+
+# whats the acceptance ratio (aiming for 0.25)
+sum(reversible_out_chain1$Acceptances)/niter
+sum(reversible_out_chain2$Acceptances)/niter

@@ -69,7 +69,7 @@ MCMC_simple_model <- function(inits,  number_of_iterations, cov, fitting) {
   for (i in 1:number_of_iterations){
     
     if(fitting == "single dataset"){
-    proposed_parameter_value <- proposal_function_simple(MCMC_output[i,], cov)  #new proposed paramater value(s) with a given s.d. (step size)
+      proposed_parameter_value <- proposal_function_simple(MCMC_output[i,], cov)  #new proposed paramater value(s) with a given s.d. (step size)
     }
     
     if(fitting == "multiple datasets"){
@@ -77,7 +77,7 @@ MCMC_simple_model <- function(inits,  number_of_iterations, cov, fitting) {
     }
     
     if(fitting == "single dataset"){
-    current_likelihood <- loglike_simple(data, MCMC_output[i,]) # likelihood 
+      current_likelihood <- loglike_simple(data, MCMC_output[i,]) # likelihood 
     }
     
     if(fitting == "multiple datasets"){
@@ -85,7 +85,7 @@ MCMC_simple_model <- function(inits,  number_of_iterations, cov, fitting) {
     }
     
     if(fitting == "single dataset"){
-    current_posterior <- posterior_function_simple(data, MCMC_output[i,]) # current posterior likelihood from MCMC
+      current_posterior <- posterior_function_simple(data, MCMC_output[i,]) # current posterior likelihood from MCMC
     }
     
     if(fitting == "multiple datasets"){
@@ -93,7 +93,7 @@ MCMC_simple_model <- function(inits,  number_of_iterations, cov, fitting) {
     }
     
     if(fitting == "single dataset"){
-    proposed_posterior <- posterior_function_simple(data, proposed_parameter_value) # proposed posterior likelihood with new proposed par value
+      proposed_posterior <- posterior_function_simple(data, proposed_parameter_value) # proposed posterior likelihood with new proposed par value
     }
     
     if(fitting == "multiple datasets"){
@@ -217,7 +217,7 @@ proposal_function_reversible <- function(par, cov) {
   
 }  
 
-MCMC_reversible_model <- function(inits,  number_of_iterations, cov, simple_lambda_median) {
+MCMC_reversible_model <- function(inits,  number_of_iterations, cov, simple_lambda_median, fitting) {
   
   # Storage for Output
   MCMC_output <- matrix(nrow = number_of_iterations + 1, ncol=length(inits)) # ncol is number of parameters
@@ -230,13 +230,38 @@ MCMC_reversible_model <- function(inits,  number_of_iterations, cov, simple_lamb
   # Running the Actual MCMC
   for (i in 1:number_of_iterations){
     
-    proposed_parameter_value <- proposal_function_reversible(MCMC_output[i,], cov)  #new proposed paramater value(s) with a given s.d. (step size)
     
-    current_likelihood <- log_lik_func_reversible(data, MCMC_output[i,]) # likelihood 
+    if(fitting == "single dataset"){
+      proposed_parameter_value <- proposal_function_reversible(MCMC_output[i,], cov)  #new proposed paramater value(s) with a given s.d. (step size)
+    }
     
-    current_posterior <- posterior_function_reversible(data, MCMC_output[i,], simple_lambda_median) # current posterior likelihood from MCMC
+    if(fitting == "multiple datasets"){
+      proposed_parameter_value <- proposal_function_reversible_multidata(MCMC_output[i,], cov)  #new proposed paramater value(s) with a given s.d. (step size)
+    }
     
-    proposed_posterior <- posterior_function_reversible(data, proposed_parameter_value, simple_lambda_median) # proposed posterior likelihood with new proposed par value
+    if(fitting == "single dataset"){
+      current_likelihood <- log_lik_func_reversible(data, MCMC_output[i,]) # likelihood 
+    }
+    
+    if(fitting == "multiple datasets"){
+      current_likelihood <- loglike_reversible_multidata(data, MCMC_output[i,]) # likelihood 
+    }
+    
+    if(fitting == "single dataset"){
+      current_posterior <- posterior_function_reversible(data, MCMC_output[i,], simple_lambda_median) # current posterior likelihood from MCMC
+    }
+    
+    if(fitting == "multiple datasets"){
+      current_posterior <- posterior_function_reversible_multidata(data, MCMC_output[i,], simple_lambda_median) # current posterior likelihood from MCMC
+    }
+    
+    if(fitting == "single dataset"){
+      proposed_posterior <- posterior_function_reversible(data, proposed_parameter_value, simple_lambda_median) # proposed posterior likelihood with new proposed par value
+    }
+    
+    if(fitting == "multiple datasets"){
+      proposed_posterior <- posterior_function_reversible_multidata(data, proposed_parameter_value, simple_lambda_median) # proposed posterior likelihood with new proposed par value
+    }
     
     likelihood_ratio = exp(proposed_posterior - current_posterior);
     
@@ -311,6 +336,63 @@ proposal_function_simple_multidata <- function(par, cov) {
   repeat {
     proposed <- mvrnorm(1, par, cov)
     if(all(proposed>0 & all(proposed[1:length(par)]<12))){break} 
+  }
+  
+  return(proposed)
+  
+}  
+
+#============================================================#
+#       Reversible FoI model (multiple dataset)              #
+#============================================================#
+
+prior_reversible_multidata <- function(par, simple_lambda_median) {
+  # Sp and Se are the first to parameters inthe vector of parameters
+  sp <- par[1]
+  se <- par[2]
+  # Site-specific lamdas are the remianing parameters in the vector of parameters
+  lambda_par <- par[3:(length(unique(data$dataset))+2)]
+  # Site specific rhos
+  rho_par <- par[(2+length(unique(data$dataset))+1):(7+length(unique(data$dataset)))]
+  
+  # se_prior = dbeta(se,97*0.6, 3*0.6, log = T) # 88.89*0.185, 11.11*0.335
+  # sp_prior = dbeta(sp,97, 3, log = T)
+  
+  se_prior = dbeta(se,alpha_se, beta_se, log = T) # 88.89*0.185, 11.11*0.335
+  sp_prior = dbeta(sp,alpha_sp, beta_sp, log = T)
+  
+  if(length(simple_lambda_median) == 5){
+  lambda_prior = sum(dlnorm(lambda_par[1], log(simple_lambda_median[1]), 1, log=TRUE),
+                     dlnorm(lambda_par[2], log(simple_lambda_median[2]), 1, log=TRUE),
+                     dlnorm(lambda_par[3], log(simple_lambda_median[3]), 1, log=TRUE),
+                     dlnorm(lambda_par[4], log(simple_lambda_median[4]), 1, log=TRUE),
+                     dlnorm(lambda_par[5], log(simple_lambda_median[5]), 1, log=TRUE))
+  }
+  
+  rho_prior = sum(dunif(rho_par, min = 0.000001, max = 12, log = T))
+  
+  
+  return(sum(c(lambda_prior, rho_prior, se_prior, sp_prior)))
+}
+
+# likelihood calculation given each parameter set & data
+loglike_reversible_multidata <- function(data, par){
+  predicted_seroprevalence = predicted_prev_reversible_func_multidataset(age = data$age, par)
+  sum(dbinom(data$pos, data$n, predicted_seroprevalence, log=T))
+}
+
+# Posterior Function (multidata)
+posterior_function_reversible_multidata <- function(data, par, simple_lambda_median){
+  loglike_reversible_multidata(data, par) + prior_reversible_multidata(par, simple_lambda_median)
+}
+
+# proposal func for multiple data
+proposal_function_reversible_multidata <- function(par, cov) {
+  
+  ## draw propopsals all from a multivariate normal & re-draw if any <=0 or > 12 (for upper limit of FoI)
+  repeat {
+    proposed <- mvrnorm(1, par, cov)
+    if(all(proposed[1:2]>0 & all(proposed[1:2]<1))& all(proposed[3:12]>0 & all(proposed[3:12]<12))){break}
   }
   
   return(proposed)
