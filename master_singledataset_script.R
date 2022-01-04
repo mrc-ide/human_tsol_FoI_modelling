@@ -89,13 +89,13 @@ chains1_output <- simple_out_chain1$MCMC_Output
 chains2_output <- simple_out_chain2$MCMC_Output
 
 # remove burnin and proceed with reducing autocorrelation (thinning by sub-sampling)
-PC_simple <-Process_chains(chains1_output, chains2_output, burnin = burnin, sample = 50) # set burnin to 0 if already
+PC_simple <- Process_chains(chains1_output, chains2_output, burnin = burnin, sample = 50) # set burnin to 0 if already
 
 # View the process chains (from the autocorrelation plots, sampling every 20th value seems appropriate)
 plot_chains(PC_simple[[1]], PC_simple[[2]])
 
 # check autocorrelation of chains for each parameter (to inform sub-sampling)
-check_autocorr <- determine_autocorrelation_func1(processed_chain = PC_simple)
+check_autocorr <- determine_autocorrelation_func1(processed_chain = PC_simple, number_datasets = 1)
 
 check_autocorr[1] # autocorrelation significance parameter 1 (e.g. lambda)
 check_autocorr[2] # autocorrelation significance parameter 2 (e.g. se)
@@ -107,16 +107,16 @@ loglikchains_plot_func(chain1 = simple_out_chain1, chain2 = simple_out_chain2)
 #==============================================================================#
 # Obtain parameter values (median & credible) & plot posterior distributions   #
 
-simple_model_parameters <- obtain_parameter_values_func(processed_chains = PC_simple, model = "simple")
+simple_model_parameters <- obtain_parameter_values_func(processed_chains = PC_simple, model = "simple", number_datasets = 1)
 simple_model_parameters
 
-plot_posterior_distrib_func(processed_chains = PC_simple, model = "simple")
+plot_posterior_distrib_func(processed_chains = PC_simple, model = "simple", number_datasets = 1)
 
 #============================================================#
 # calculate Deviance Information Criterion (DIC) - model fit #
 
 DIC_result <- calculate_DIC_func(chain = simple_out_chain1, burnin = burnin, subsample = 50, 
-                                 parameters = simple_model_parameters, model = "simple")
+                                 parameters = simple_model_parameters, model = "simple", number_datasets = 1)
 DIC_result  # 1) D bar model1, 2) modal posterior likelihood, 3) modal posterior deviance, 4) DIC
 
 #====================================================================================================================#
@@ -177,7 +177,7 @@ PC_reversible <-Process_chains(chains1_output, chains2_output, burnin = burnin, 
 plot_chains(PC_reversible[[1]], PC_reversible[[2]])
 
 # check autocorrelation of chains for each parameter (to inform sub-sampling)
-check_autocorr <- determine_autocorrelation_func2(processed_chain = PC_reversible)
+check_autocorr <- determine_autocorrelation_func2(processed_chain = PC_reversible, number_datasets = 1)
 
 check_autocorr[1] # autocorrelation significance parameter 1 (e.g. lambda)
 check_autocorr[2] # autocorrelation significance parameter 2 (e.g. se)
@@ -190,16 +190,16 @@ loglikchains_plot_func(chain1 = reversible_out_chain1, chain2 = reversible_out_c
 #==============================================================================#
 # Obtain parameter values (median & credible) & plot posterior distributions   #
 
-reversible_model_parameters <- obtain_parameter_values_func(processed_chains = PC_reversible, model = "reversible")
+reversible_model_parameters <- obtain_parameter_values_func(processed_chains = PC_reversible, model = "reversible", number_datasets = 5)
 reversible_model_parameters
 
-plot_posterior_distrib_func(processed_chains = PC_reversible, model = "reversible")
+plot_posterior_distrib_func(processed_chains = PC_reversible, model = "reversible", number_datasets = 1)
 
 #============================================================#
 # calculate Deviance Information Criterion (DIC) - model fit #
 
 DIC_result <- calculate_DIC_func(chain = reversible_out_chain1, burnin = burnin, subsample = 50, 
-                                 parameters = reversible_model_parameters, model = "reversible")
+                                 parameters = reversible_model_parameters, model = "reversible", number_datasets = 1)
 DIC_result  # 1) D bar model1, 2) modal posterior likelihood, 3) modal posterior deviance, 4) DIC
 
 #====================================================================================================================#
