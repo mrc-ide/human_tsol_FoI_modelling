@@ -112,10 +112,10 @@ plot_chains <- function(run1, run2){
   
 }
 
-plot_chains_multidatasets <- function(run1, run2, inits, number_datasets){
+plot_chains_multidatasets <- function(run1, run2, inits, number_datasets, model){
   par(mfrow=c(2,length(inits)/2))
   
-  if(number_datasets == 5){
+  if(number_datasets == 5 && model == "simple"){
     for(i in 1:ncol(run1)){
       if (i == 1) {
         ylab = "sp"
@@ -138,7 +138,41 @@ plot_chains_multidatasets <- function(run1, run2, inits, number_datasets){
       lines(run2[,i], col='dodgerblue')
     }}
   
+  if(number_datasets == 5 && model == "reversible"){
+    for(i in 1:ncol(run1)){
+      if (i == 1) {
+        ylab = "sp"
+      } else if (i == 2) {
+        ylab = "se"
+      }  else if (i ==3) {
+        ylab="lambda (site 1)"
+      } else if (i==4) {
+        ylab="lambda (site 2)"
+      } else if (i==5) {
+        ylab="lambda (site 3)"
+      } else if (i==6) {
+        ylab="lambda (site 4)"
+      } else if (i==7) {
+        ylab="lambda (site 5)"
+      }  else if (i==8) {
+        ylab="rho (site 1)"
+      } else if (i==9) {
+        ylab="rho (site 2)"
+      } else if (i==10) {
+        ylab="rho (site 3)"
+      } else if (i==11) {
+        ylab="rho (site 4)"
+      } else {
+        ylab="rho (site 5)"
+      }
+      
+      plot(run1[,i], t='l', col='deeppink',
+           ylim=c(min(c(run1[,i], run2[,i])),max(c(run1[,i], run2[,i]))),
+           xlab='', ylab = ylab)
+      lines(run2[,i], col='dodgerblue')
+    }}
 }
+
 
 #### plot posterior distributions (after processing) ###
 
@@ -164,12 +198,30 @@ plot_posterior_distrib_func <- function(processed_chains, model, number_datasets
     hist(c(processed_chains[[1]][,7], processed_chains[[2]][,7]), breaks=30, xlab='lambda (site 5)', main="")      
   }
   
-  if(model == "reversible"){
+  if(model == "reversible" && number_datasets == 1){
     par(mfrow=c(1,4))
     hist(c(processed_chains[[1]][,1], processed_chains[[2]][,1]), breaks=30, xlab='Lambda', main="")  # Parameter 1 - lambda 
     hist(c(processed_chains[[1]][,2], processed_chains[[2]][,2]), breaks=30, xlab='sensitivity', main="")      # Parameter 2 - se
     hist(c(processed_chains[[1]][,3], processed_chains[[2]][,3]), breaks=30, xlab='specificity', main="")      # Parameter 3 - sp
     hist(c(processed_chains[[1]][,4], processed_chains[[2]][,4]), breaks=30, xlab='rho', main="")      # Parameter 4 - rho
+  }
+  
+  if(model == "reversible" && number_datasets == 5){
+    par(mfrow=c(2,ncol(PC_reversible[[1]])/2))
+    
+    hist(c(processed_chains[[1]][,1], processed_chains[[2]][,1]), breaks=30, xlab='specifcity', main="")   
+    hist(c(processed_chains[[1]][,2], processed_chains[[2]][,2]), breaks=30, xlab='sensitivity', main="")      
+    hist(c(processed_chains[[1]][,3], processed_chains[[2]][,3]), breaks=30, xlab='lambda (site 1)', main="")      
+    hist(c(processed_chains[[1]][,4], processed_chains[[2]][,4]), breaks=30, xlab='lambda (site 2)', main="")  
+    hist(c(processed_chains[[1]][,5], processed_chains[[2]][,5]), breaks=30, xlab='lambda (site 3)', main="")     
+    hist(c(processed_chains[[1]][,6], processed_chains[[2]][,6]), breaks=30, xlab='lambda (site 4)', main="")
+    hist(c(processed_chains[[1]][,7], processed_chains[[2]][,7]), breaks=30, xlab='lambda (site 5)', main="")
+    hist(c(processed_chains[[1]][,8], processed_chains[[2]][,8]), breaks=30, xlab='rho (site 1)', main="")
+    hist(c(processed_chains[[1]][,9], processed_chains[[2]][,9]), breaks=30, xlab='rho (site 2)', main="")      
+    hist(c(processed_chains[[1]][,10], processed_chains[[2]][,10]), breaks=30, xlab='rho (site 3)', main="")  
+    hist(c(processed_chains[[1]][,11], processed_chains[[2]][,11]), breaks=30, xlab='rho (site 4)', main="")     
+    hist(c(processed_chains[[1]][,12], processed_chains[[2]][,12]), breaks=30, xlab='rho (site 5)', main="")      
+
   }
   
   

@@ -96,7 +96,7 @@ chains2_output <- simple_out_chain2$MCMC_Output
 PC_simple <- Process_chains(chains1_output, chains2_output, burnin = burnin, sample = 100) # set burnin to 0 if already
 
 # View the process chains (from the autocorrelation plots, sampling every 20th value seems appropriate)
-plot_chains_multidatasets(PC_simple[[1]], PC_simple[[2]], inits = inits1, number_datasets = 5)
+plot_chains_multidatasets(PC_simple[[1]], PC_simple[[2]], inits = inits1, number_datasets = 5, model = "simple")
 
 # check autocorrelation of chains for each parameter (to inform sub-sampling)
 check_autocorr <- determine_autocorrelation_func1(processed_chain = PC_simple, number_datasets = 5)
@@ -123,8 +123,8 @@ plot_posterior_distrib_func(processed_chains = PC_simple, model = "simple", numb
 #============================================================#
 # calculate Deviance Information Criterion (DIC) - model fit #
 
-DIC_result <- calculate_DIC_func(chain = simple_out_chain1, burnin = burnin, subsample = 50, 
-                                 parameters = simple_model_parameters, model = "simple", number_datasets = 5)
+DIC_result <- calculate_DIC_func1(chain = simple_out_chain1, burnin = burnin, subsample = 50, 
+                                 parameters = simple_model_parameters, number_datasets = 5)
 DIC_result  # 1) D bar model1, 2) modal posterior likelihood, 3) modal posterior deviance, 4) DIC
 
 #====================================================================================================================#
@@ -189,15 +189,23 @@ chains2_output <- reversible_out_chain2$MCMC_Output
 PC_reversible <- Process_chains(chains1_output, chains2_output, burnin = burnin, sample = 50) # set burnin to 0 if already
 
 # View the process chains (from the autocorrelation plots, sampling every 20th value seems appropriate)
-plot_chains(PC_reversible[[1]], PC_reversible[[2]])
+plot_chains_multidatasets(PC_reversible[[1]], PC_reversible[[2]], inits = inits1, number_datasets = 5, model = "reversible")
 
 # check autocorrelation of chains for each parameter (to inform sub-sampling)
-check_autocorr <- determine_autocorrelation_func2(processed_chain = PC_reversible, number_datasets = 1)
+check_autocorr <- determine_autocorrelation_func2(processed_chain = PC_reversible, number_datasets = 5)
 
-check_autocorr[1] # autocorrelation significance parameter 1 (e.g. lambda)
-check_autocorr[2] # autocorrelation significance parameter 2 (e.g. se)
-check_autocorr[3] # autocorrelation significance parameter 1 (e.g. sp)
-check_autocorr[4] # autocorrelation significance parameter 1 (e.g. sp)
+check_autocorr[1] # autocorrelation significance parameter 1 
+check_autocorr[2] # autocorrelation significance parameter 2 
+check_autocorr[3] # autocorrelation significance parameter 3 
+check_autocorr[4] # autocorrelation significance parameter 4 
+check_autocorr[5] # autocorrelation significance parameter 5 
+check_autocorr[6] # autocorrelation significance parameter 6 
+check_autocorr[7] # autocorrelation significance parameter 7 
+check_autocorr[8] # autocorrelation significance parameter 3 
+check_autocorr[9] # autocorrelation significance parameter 4 
+check_autocorr[10] # autocorrelation significance parameter 5 
+check_autocorr[11] # autocorrelation significance parameter 6 
+check_autocorr[12] # autocorrelation significance parameter 7 
 
 # plot loglikelihood
 loglikchains_plot_func(chain1 = reversible_out_chain1, chain2 = reversible_out_chain2)
@@ -208,13 +216,14 @@ loglikchains_plot_func(chain1 = reversible_out_chain1, chain2 = reversible_out_c
 reversible_model_parameters <- obtain_parameter_values_func(processed_chains = PC_reversible, model = "reversible", number_datasets = 5)
 reversible_model_parameters
 
-plot_posterior_distrib_func(processed_chains = PC_reversible, model = "reversible", number_datasets = 1)
+plot_posterior_distrib_func(processed_chains = PC_reversible, model = "reversible", number_datasets = 5)
 
 #============================================================#
 # calculate Deviance Information Criterion (DIC) - model fit #
 
-DIC_result <- calculate_DIC_func(chain = reversible_out_chain1, burnin = burnin, subsample = 50, 
-                                 parameters = reversible_model_parameters, model = "reversible", number_datasets = 1)
+DIC_result <- calculate_DIC_func2(chain = reversible_out_chain1, burnin = burnin, subsample = 50, 
+                                 parameters = reversible_model_parameters, number_datasets = 5,
+                                 simple_lambda_median = c(0.00007756672, 0.003205126, 0.008291567, 0.003112397, 0.003481667))
 DIC_result  # 1) D bar model1, 2) modal posterior likelihood, 3) modal posterior deviance, 4) DIC
 
 #====================================================================================================================#

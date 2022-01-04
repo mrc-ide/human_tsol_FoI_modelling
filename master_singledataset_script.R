@@ -115,8 +115,8 @@ plot_posterior_distrib_func(processed_chains = PC_simple, model = "simple", numb
 #============================================================#
 # calculate Deviance Information Criterion (DIC) - model fit #
 
-DIC_result <- calculate_DIC_func(chain = simple_out_chain1, burnin = burnin, subsample = 50, 
-                                 parameters = simple_model_parameters, model = "simple", number_datasets = 1)
+DIC_result <- calculate_DIC_func1(chain = simple_out_chain1, burnin = burnin, subsample = 50, 
+                                 parameters = simple_model_parameters, number_datasets = 1)
 DIC_result  # 1) D bar model1, 2) modal posterior likelihood, 3) modal posterior deviance, 4) DIC
 
 #====================================================================================================================#
@@ -190,7 +190,7 @@ loglikchains_plot_func(chain1 = reversible_out_chain1, chain2 = reversible_out_c
 #==============================================================================#
 # Obtain parameter values (median & credible) & plot posterior distributions   #
 
-reversible_model_parameters <- obtain_parameter_values_func(processed_chains = PC_reversible, model = "reversible", number_datasets = 5)
+reversible_model_parameters <- obtain_parameter_values_func(processed_chains = PC_reversible, model = "reversible", number_datasets = 1)
 reversible_model_parameters
 
 plot_posterior_distrib_func(processed_chains = PC_reversible, model = "reversible", number_datasets = 1)
@@ -198,8 +198,9 @@ plot_posterior_distrib_func(processed_chains = PC_reversible, model = "reversibl
 #============================================================#
 # calculate Deviance Information Criterion (DIC) - model fit #
 
-DIC_result <- calculate_DIC_func(chain = reversible_out_chain1, burnin = burnin, subsample = 50, 
-                                 parameters = reversible_model_parameters, model = "reversible", number_datasets = 1)
+DIC_result <- calculate_DIC_func2(chain = reversible_out_chain1, burnin = burnin, subsample = 50, 
+                                 parameters = reversible_model_parameters, number_datasets = 1,
+                                 simple_lambda_median = 0.00042)
 DIC_result  # 1) D bar model1, 2) modal posterior likelihood, 3) modal posterior deviance, 4) DIC
 
 #====================================================================================================================#
