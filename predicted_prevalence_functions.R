@@ -15,7 +15,7 @@ predicted_prev_func <- function(age, par){
   op
 }
 
-# for plotting predicted prevalence
+# for single & multiple datasets (once fitted w/ parameter estimates to obtain prevalence curves for each datasets)
 
 predicted_prev_func2 <- function(age, par){
   
@@ -43,19 +43,14 @@ predicted_prev_func_multidataset <- function(age, par){
   op
 }
 
-predicted_prev_func2_multidataset <- function(age, par){
-  # Sp and Se are the first to parameters in the vector of parameters
-  sp <- par[1]
-  se <- par[2]
-  # Site-specific lamdas are the remianing parameters in the vector of parameters
-  lambda <- par[3]
-
-  # Prediction
-  tp <-  1 - exp(-lambda * age)  # true prevalence
+predicted_prev_multidataset_func2 <- function(age, par){
+  
+  sp <- par[1]; se <- par[2]; lambda <- par[3] 
+  
+  tp <-  1 - exp(-lambda * (age))   # true prevalence
   op <- (1-sp) + (se+sp-1)*tp      # observed prevalence Diggle et al 2011 Epi Res Int
   op
 }
-
 
 #===================================#
 # reversible model (single dataset) #
@@ -102,7 +97,15 @@ predicted_prev_reversible_func_multidataset <- function(age, par){
   op
 }
 
-
+# for multiple datasets (once fitted w/ parameter estimates to obtain prevalence curves for each datasets)
+predicted_prev_reversible_func2_multidataset <- function(age, par){
+  
+  sp <- par[1];  se <- par[2]; lambda <- par[3]; rho <- par[4]
+  
+  tp <-  (lambda/(lambda + rho)) * (1 - exp(-(lambda + rho) *(age)))   # true prevalence
+  op <- (1-sp) + (se+sp-1) * tp      # observed prevalence Diggle et al 2011 Epi Res Int
+  op
+}
 #================================================================#
 # produce predicted prevalence curves (fitted to single dataset) #
 
@@ -266,8 +269,10 @@ calculate_predicted_prevalence_function <- function (max_age_toplot, data, pars,
 # produce predicted prevalence curves (simple model - fitted to single dataset) #
 
 
-calculate_predicted_prevalence_multipledatasets_function1 <- function (max_age_toplot, data, pars, processed_chains, number_datasets) {
-  
+calculate_predicted_prevalence_multipledatasets_function1 <- function (max_age_toplot, data, pars, processed_chains, 
+                                                                       model, number_datasets) {
+  ## simple model ##
+  if(model == "simple"){
   if(number_datasets == 5){
     
     # specify posterior median parameters to enable predicted prevalence calculation
@@ -297,15 +302,15 @@ calculate_predicted_prevalence_multipledatasets_function1 <- function (max_age_t
     predicted_median_curve5 <- full_join(fitted_curve_df, data5)
     
     # calculate predicted prevalence for each dataset
-    predicted_median_curve1$predicted <- sapply(1:nrow(predicted_median_curve1), function(i) predicted_prev_func2_multidataset(age = predicted_median_curve1$age[i], 
+    predicted_median_curve1$predicted <- sapply(1:nrow(predicted_median_curve1), function(i) predicted_prev_multidataset_func2(age = predicted_median_curve1$age[i], 
                                                                                                                               c(sp.median, se.median, lambda1.median)))
-    predicted_median_curve2$predicted <- sapply(1:nrow(predicted_median_curve2), function(i) predicted_prev_func2_multidataset(age = predicted_median_curve2$age[i], 
+    predicted_median_curve2$predicted <- sapply(1:nrow(predicted_median_curve2), function(i) predicted_prev_multidataset_func2(age = predicted_median_curve2$age[i], 
                                                                                                                               c(sp.median, se.median, lambda2.median)))
-    predicted_median_curve3$predicted <- sapply(1:nrow(predicted_median_curve3), function(i) predicted_prev_func2_multidataset(age = predicted_median_curve3$age[i], 
+    predicted_median_curve3$predicted <- sapply(1:nrow(predicted_median_curve3), function(i) predicted_prev_multidataset_func2(age = predicted_median_curve3$age[i], 
                                                                                                                               c(sp.median, se.median, lambda3.median)))
-    predicted_median_curve4$predicted <- sapply(1:nrow(predicted_median_curve4), function(i) predicted_prev_func2_multidataset(age = predicted_median_curve4$age[i], 
+    predicted_median_curve4$predicted <- sapply(1:nrow(predicted_median_curve4), function(i) predicted_prev_multidataset_func2(age = predicted_median_curve4$age[i], 
                                                                                                                               c(sp.median, se.median, lambda4.median)))
-    predicted_median_curve5$predicted <- sapply(1:nrow(predicted_median_curve5), function(i) predicted_prev_func2_multidataset(age = predicted_median_curve5$age[i], 
+    predicted_median_curve5$predicted <- sapply(1:nrow(predicted_median_curve5), function(i) predicted_prev_multidataset_func2(age = predicted_median_curve5$age[i], 
                                                                                                                               c(sp.median, se.median, lambda5.median)))
     # make master dataframe combining all datasets
     predicted_median_curve1$dataset_name <- rep(as.factor("data1"))
@@ -332,9 +337,7 @@ calculate_predicted_prevalence_multipledatasets_function1 <- function (max_age_t
     
     for (i in 1:length(processed_chains[[1]][,1])){
       
-      single_model_output <- predicted_prev_func2_multidataset(seq(0, max_age_toplot, 0.005),c(sp.chain[i], 
-                                                                                               sp.chain[i], 
-                                                                                               lambda1.chain[i]))
+      single_model_output <- predicted_prev_multidataset_func2(seq(0, max_age_toplot, 0.005),c(sp.chain[i], se.chain[i], lambda1.chain[i]))
       subsampled_model_outputs_dat1[i, ] <- single_model_output
       
     }
@@ -356,9 +359,7 @@ calculate_predicted_prevalence_multipledatasets_function1 <- function (max_age_t
     
     for (i in 1:length(processed_chains[[1]][,1])){
       
-      single_model_output <- predicted_prev_func2_multidataset(seq(0, max_age_toplot, 0.005),c(sp.chain[i], 
-                                                                                               sp.chain[i], 
-                                                                                               lambda2.chain[i]))
+      single_model_output <- predicted_prev_multidataset_func2(seq(0, max_age_toplot, 0.005),c(sp.chain[i], se.chain[i], lambda2.chain[i]))
       subsampled_model_outputs_dat2[i, ] <- single_model_output
       
     }
@@ -380,9 +381,7 @@ calculate_predicted_prevalence_multipledatasets_function1 <- function (max_age_t
     
     for (i in 1:length(processed_chains[[1]][,1])){
       
-      single_model_output <- predicted_prev_func2_multidataset(seq(0, max_age_toplot, 0.005),c(sp.chain[i], 
-                                                                                               sp.chain[i], 
-                                                                                               lambda3.chain[i]))
+      single_model_output <- predicted_prev_multidataset_func2(seq(0, max_age_toplot, 0.005),c(sp.chain[i], se.chain[i], lambda3.chain[i]))
       subsampled_model_outputs_dat3[i, ] <- single_model_output
       
     }
@@ -404,9 +403,7 @@ calculate_predicted_prevalence_multipledatasets_function1 <- function (max_age_t
     
     for (i in 1:length(processed_chains[[1]][,1])){
       
-      single_model_output <- predicted_prev_func2_multidataset(seq(0, max_age_toplot, 0.005),c(sp.chain[i], 
-                                                                                               sp.chain[i], 
-                                                                                               lambda4.chain[i]))
+      single_model_output <- predicted_prev_multidataset_func2(seq(0, max_age_toplot, 0.005),c(sp.chain[i], se.chain[i], lambda4.chain[i]))
       subsampled_model_outputs_dat4[i, ] <- single_model_output
       
     }
@@ -428,9 +425,7 @@ calculate_predicted_prevalence_multipledatasets_function1 <- function (max_age_t
     
     for (i in 1:length(processed_chains[[1]][,1])){
       
-      single_model_output <- predicted_prev_func2_multidataset(seq(0, max_age_toplot, 0.005),c(sp.chain[i], 
-                                                                                               sp.chain[i], 
-                                                                                               lambda5.chain[i]))
+      single_model_output <- predicted_prev_multidataset_func2(seq(0, max_age_toplot, 0.005),c(sp.chain[i], se.chain[i], lambda5.chain[i]))
       subsampled_model_outputs_dat5[i, ] <- single_model_output
       
     }
@@ -449,9 +444,205 @@ calculate_predicted_prevalence_multipledatasets_function1 <- function (max_age_t
     
     # combined uncertainty dataframes across datasets
     predicted_CrI <- rbind(predicted_CrI_dat1, predicted_CrI_dat2, predicted_CrI_dat3, predicted_CrI_dat4, predicted_CrI_dat5)
-    
-    
+    }
   }
+  
+  ## reversible model ##
+  if(model == "reversible"){
+    if(number_datasets == 5){
+      
+      # specify posterior median parameters to enable predicted prevalence calculation
+      sp.median <- pars[[1]]
+      se.median <- pars[[2]]
+      lambda1.median <- pars[[3]]
+      lambda2.median <- pars[[4]]
+      lambda3.median <- pars[[5]]
+      lambda4.median <- pars[[6]]
+      lambda5.median <- pars[[7]]
+      rho1.median <- pars[[8]]
+      rho2.median <- pars[[9]]
+      rho3.median <- pars[[10]]
+      rho4.median <- pars[[11]]
+      rho5.median <- pars[[12]]
+      
+      # set up dataframes for predicted prevalence calculations (n = 5 datasets)
+      n <- length(unique(data$dataset))
+      eval(parse(text = paste0("data", seq(1:n), " <- ", split(data, data$dataset))))
+      eval(parse(text = paste0("data", seq(1:n), " <-  as.data.frame(data", seq(1:number_datasets), ")"))) # change seq to 1: number of individual datasets
+      
+      age_dum <- seq(from=0, to=max_age_toplot, by=0.005)  
+      
+      fitted_curve_df <- as.data.frame(age_dum) # make sequence of numbers (mean ages) for predicted variable
+      
+      names(fitted_curve_df)[names(fitted_curve_df)=="age_dum"] <- "age"
+      
+      predicted_median_curve1 <- full_join(fitted_curve_df, data1) 
+      predicted_median_curve2 <- full_join(fitted_curve_df, data2) 
+      predicted_median_curve3 <- full_join(fitted_curve_df, data3)
+      predicted_median_curve4 <- full_join(fitted_curve_df, data4)
+      predicted_median_curve5 <- full_join(fitted_curve_df, data5)
+      
+      # calculate predicted prevalence for each dataset
+      predicted_median_curve1$predicted <- sapply(1:nrow(predicted_median_curve1), function(i) predicted_prev_reversible_func2_multidataset(age = predicted_median_curve1$age[i], 
+                                                                                                                                 c(sp.median, se.median, 
+                                                                                                                                   lambda1.median, rho1.median)))
+      predicted_median_curve2$predicted <- sapply(1:nrow(predicted_median_curve2), function(i) predicted_prev_reversible_func2_multidataset(age = predicted_median_curve2$age[i], 
+                                                                                                                                 c(sp.median, se.median, 
+                                                                                                                                   lambda2.median, rho2.median)))
+      predicted_median_curve3$predicted <- sapply(1:nrow(predicted_median_curve3), function(i) predicted_prev_reversible_func2_multidataset(age = predicted_median_curve3$age[i], 
+                                                                                                                                 c(sp.median, se.median, 
+                                                                                                                                   lambda3.median, rho3.median)))
+      predicted_median_curve4$predicted <- sapply(1:nrow(predicted_median_curve4), function(i) predicted_prev_reversible_func2_multidataset(age = predicted_median_curve4$age[i], 
+                                                                                                                                 c(sp.median, se.median, 
+                                                                                                                                   lambda4.median, rho4.median)))
+      predicted_median_curve5$predicted <- sapply(1:nrow(predicted_median_curve5), function(i) predicted_prev_reversible_func2_multidataset(age = predicted_median_curve5$age[i], 
+                                                                                                                                 c(sp.median, se.median, 
+                                                                                                                                   lambda5.median, rho5.median)))
+      # make master dataframe combining all datasets
+      predicted_median_curve1$dataset_name <- rep(as.factor("data1"))
+      predicted_median_curve2$dataset_name <- rep(as.factor("data2"))
+      predicted_median_curve3$dataset_name <- rep(as.factor("data3"))
+      predicted_median_curve4$dataset_name <- rep(as.factor("data4"))
+      predicted_median_curve5$dataset_name <- rep(as.factor("data5"))
+      
+      
+      predicted_median_curve <- rbind(predicted_median_curve1, predicted_median_curve2, predicted_median_curve3, predicted_median_curve4, predicted_median_curve5)
+      
+      # chains for each parameter to sample uncertainty from
+      sp.chain <- c(PC_reversible[[1]][,1], PC_reversible[[2]][,1])
+      se.chain <- c(PC_reversible[[1]][,2], PC_reversible[[2]][,2])
+      lambda1.chain <- c(PC_reversible[[1]][,3], PC_reversible[[2]][,3])
+      lambda2.chain <- c(PC_reversible[[1]][,4], PC_reversible[[2]][,4])
+      lambda3.chain <- c(PC_reversible[[1]][,5], PC_reversible[[2]][,5])
+      lambda4.chain <- c(PC_reversible[[1]][,6], PC_reversible[[2]][,6])
+      lambda5.chain <- c(PC_reversible[[1]][,7], PC_reversible[[2]][,7])
+      rho1.chain <- c(PC_reversible[[1]][,8], PC_reversible[[2]][,8])
+      rho2.chain <- c(PC_reversible[[1]][,9], PC_reversible[[2]][,9])
+      rho3.chain <- c(PC_reversible[[1]][,10], PC_reversible[[2]][,10])
+      rho4.chain <- c(PC_reversible[[1]][,11], PC_reversible[[2]][,11])
+      rho5.chain <- c(PC_reversible[[1]][,12], PC_reversible[[2]][,12])
+      
+      # calculate uncertainty (credible interval) of model run resulting from posterior #
+      # dataset 1 #
+      subsampled_model_outputs_dat1 <- matrix(NA, nrow = length(processed_chains[[1]][,1]), ncol = length(seq(0, 90, 0.005)))
+      
+      for (i in 1:length(processed_chains[[1]][,1])){
+        
+        single_model_output <- predicted_prev_reversible_func2_multidataset(seq(0, max_age_toplot, 0.005),c(sp.chain[i], se.chain[i], 
+                                                                                                 lambda1.chain[i], rho1.chain[i]))
+        subsampled_model_outputs_dat1[i, ] <- single_model_output
+        
+      }
+      
+      lower_credible_interval_processed <- apply(subsampled_model_outputs_dat1, MARGIN = 2, quantile, prob = 0.025)
+      upper_credible_interval_processed <- apply(subsampled_model_outputs_dat1, MARGIN = 2, quantile, prob = 0.975)
+      
+      Lower_obs <- as.data.frame(lower_credible_interval_processed)
+      Upper_obs <- as.data.frame(upper_credible_interval_processed)
+      
+      predicted_CrI_dat1 <- cbind(Lower_obs, Upper_obs)
+      predicted_CrI_dat1 <- as.data.frame(predicted_CrI_dat1)
+      predicted_CrI_dat1$age <- fitted_curve_df$age
+      predicted_CrI_dat1$dataset_name <- rep(as.factor("data1"))
+      names(predicted_CrI_dat1) <- c("lower", "upper", "age", "dataset_name")
+      
+      # dataset 2 #
+      subsampled_model_outputs_dat2 <- matrix(NA, nrow = length(processed_chains[[1]][,1]), ncol = length(seq(0, 90, 0.005)))
+      
+      for (i in 1:length(processed_chains[[1]][,1])){
+        
+        single_model_output <- predicted_prev_reversible_func2_multidataset(seq(0, max_age_toplot, 0.005),c(sp.chain[i], se.chain[i], 
+                                                                                                 lambda2.chain[i], rho2.chain[i]))
+        subsampled_model_outputs_dat2[i, ] <- single_model_output
+        
+      }
+      
+      lower_credible_interval_processed <- apply(subsampled_model_outputs_dat2, MARGIN = 2, quantile, prob = 0.025)
+      upper_credible_interval_processed <- apply(subsampled_model_outputs_dat2, MARGIN = 2, quantile, prob = 0.975)
+      
+      Lower_obs <- as.data.frame(lower_credible_interval_processed)
+      Upper_obs <- as.data.frame(upper_credible_interval_processed)
+      
+      predicted_CrI_dat2 <- cbind(Lower_obs, Upper_obs)
+      predicted_CrI_dat2 <- as.data.frame(predicted_CrI_dat2)
+      predicted_CrI_dat2$age <- fitted_curve_df$age
+      predicted_CrI_dat2$dataset_name <- rep(as.factor("data2"))
+      names(predicted_CrI_dat2) <- c("lower", "upper", "age", "dataset_name")
+      
+      # dataset 3 #
+      subsampled_model_outputs_dat3 <- matrix(NA, nrow = length(processed_chains[[1]][,1]), ncol = length(seq(0, 90, 0.005)))
+      
+      for (i in 1:length(processed_chains[[1]][,1])){
+        
+        single_model_output <- predicted_prev_reversible_func2_multidataset(seq(0, max_age_toplot, 0.005),c(sp.chain[i], se.chain[i], 
+                                                                                                 lambda3.chain[i], rho3.chain[i]))
+        subsampled_model_outputs_dat3[i, ] <- single_model_output
+        
+      }
+      
+      lower_credible_interval_processed <- apply(subsampled_model_outputs_dat3, MARGIN = 2, quantile, prob = 0.025)
+      upper_credible_interval_processed <- apply(subsampled_model_outputs_dat3, MARGIN = 2, quantile, prob = 0.975)
+      
+      Lower_obs <- as.data.frame(lower_credible_interval_processed)
+      Upper_obs <- as.data.frame(upper_credible_interval_processed)
+      
+      predicted_CrI_dat3 <- cbind(Lower_obs, Upper_obs)
+      predicted_CrI_dat3 <- as.data.frame(predicted_CrI_dat3)
+      predicted_CrI_dat3$age <- fitted_curve_df$age
+      predicted_CrI_dat3$dataset_name <- rep(as.factor("data3"))
+      names(predicted_CrI_dat3) <- c("lower", "upper", "age", "dataset_name")
+      
+      # dataset 4 #
+      subsampled_model_outputs_dat4 <- matrix(NA, nrow = length(processed_chains[[1]][,1]), ncol = length(seq(0, 90, 0.005)))
+      
+      for (i in 1:length(processed_chains[[1]][,1])){
+        
+        single_model_output <- predicted_prev_reversible_func2_multidataset(seq(0, max_age_toplot, 0.005),c(sp.chain[i], se.chain[i], 
+                                                                                                 lambda4.chain[i], rho4.chain[i]))
+        subsampled_model_outputs_dat4[i, ] <- single_model_output
+        
+      }
+      
+      lower_credible_interval_processed <- apply(subsampled_model_outputs_dat4, MARGIN = 2, quantile, prob = 0.025)
+      upper_credible_interval_processed <- apply(subsampled_model_outputs_dat4, MARGIN = 2, quantile, prob = 0.975)
+      
+      Lower_obs <- as.data.frame(lower_credible_interval_processed)
+      Upper_obs <- as.data.frame(upper_credible_interval_processed)
+      
+      predicted_CrI_dat4 <- cbind(Lower_obs, Upper_obs)
+      predicted_CrI_dat4 <- as.data.frame(predicted_CrI_dat4)
+      predicted_CrI_dat4$age <- fitted_curve_df$age
+      predicted_CrI_dat4$dataset_name <- rep(as.factor("data4"))
+      names(predicted_CrI_dat4) <- c("lower", "upper", "age", "dataset_name")
+      
+      # dataset 5 #
+      subsampled_model_outputs_dat5 <- matrix(NA, nrow = length(processed_chains[[1]][,1]), ncol = length(seq(0, 90, 0.005)))
+      
+      for (i in 1:length(processed_chains[[1]][,1])){
+        
+        single_model_output <- predicted_prev_reversible_func2_multidataset(seq(0, max_age_toplot, 0.005),c(sp.chain[i], se.chain[i], 
+                                                                                                 lambda5.chain[i], rho5.chain[i]))
+        subsampled_model_outputs_dat5[i, ] <- single_model_output
+        
+      }
+      
+      lower_credible_interval_processed <- apply(subsampled_model_outputs_dat5, MARGIN = 2, quantile, prob = 0.025)
+      upper_credible_interval_processed <- apply(subsampled_model_outputs_dat5, MARGIN = 2, quantile, prob = 0.975)
+      
+      Lower_obs <- as.data.frame(lower_credible_interval_processed)
+      Upper_obs <- as.data.frame(upper_credible_interval_processed)
+      
+      predicted_CrI_dat5 <- cbind(Lower_obs, Upper_obs)
+      predicted_CrI_dat5 <- as.data.frame(predicted_CrI_dat5)
+      predicted_CrI_dat5$age <- fitted_curve_df$age
+      predicted_CrI_dat5$dataset_name <- rep(as.factor("data5"))
+      names(predicted_CrI_dat5) <- c("lower", "upper", "age", "dataset_name")
+      
+      # combined uncertainty dataframes across datasets
+      predicted_CrI <- rbind(predicted_CrI_dat1, predicted_CrI_dat2, predicted_CrI_dat3, predicted_CrI_dat4, predicted_CrI_dat5)
+    }
+  }
+  
   
  # plot predicted prevalence curve & uncertainty band vs data
   p <- ggplot() +   

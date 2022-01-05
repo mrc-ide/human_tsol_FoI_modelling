@@ -132,7 +132,8 @@ DIC_result  # 1) D bar model1, 2) modal posterior likelihood, 3) modal posterior
 
 predicted_prev_output <- calculate_predicted_prevalence_multipledatasets_function1(max_age_toplot = 90, data = data, 
                                                                  pars = simple_model_parameters,
-                                                                 processed_chains = PC_simple, number_datasets = 5)
+                                                                 processed_chains = PC_simple, number_datasets = 5,
+                                                                 model = "simple")
 
 predicted_prev_output[[1]] # predicted prevalence plot (ylim 0-100% prev)
 predicted_prev_output[[2]] # predicted prevalence plot (ylim 0-50% prev)
@@ -229,12 +230,13 @@ DIC_result  # 1) D bar model1, 2) modal posterior likelihood, 3) modal posterior
 #====================================================================================================================#
 # calculate (with posterior parameter estimates) predicted (sero)prevalence and unceetainty intervals (for plotting) #
 
-predicted_prev_output <- calculate_predicted_prevalence_function(max_age_toplot = 90, data = data, 
-                                                                 pars = reversible_model_parameters,
-                                                                 processed_chains = PC_reversible, model = "reversible")
+predicted_prev_output <- calculate_predicted_prevalence_multipledatasets_function1(max_age_toplot = 90, data = data, 
+                                                                                   pars = reversible_model_parameters,
+                                                                                   processed_chains = PC_reversible, number_datasets = 5,
+                                                                                   model = "reversible")
 
 predicted_prev_output[[1]] # predicted prevalence plot (ylim 0-100% prev)
-predicted_prev_output[[2]] # predicted prevalence plot (ylim 0-50% prev)
-predicted_prev_output[[3]] # predicted prevalence plot (ylim 0-25% prev)
+#predicted_prev_output[[2]] # predicted prevalence plot (ylim 0-50% prev)
+#predicted_prev_output[[3]] # predicted prevalence plot (ylim 0-25% prev)
 
 
