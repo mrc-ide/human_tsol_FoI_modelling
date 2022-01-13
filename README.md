@@ -31,6 +31,6 @@ Data to support this study can be accessed through the following data repository
 
 This is a complementary study to the pig cysticercosis FoI analysis conducted by this group and published in Scientific Reports: 
 
-Dixon, M.A., Winskill, P., Harrison, W.E. et al. Force-of-infection of Taenia solium porcine cysticercosis: a modelling analysis to assess global incidence and prevalence trends. Sci Rep 10, 17637 (2020). https://doi.org/10.1038/s41598-020-74007-x
+[Dixon, M.A., Winskill, P., Harrison, W.E. et al. Force-of-infection of Taenia solium porcine cysticercosis: a modelling analysis to assess global incidence and prevalence trends. Sci Rep 10, 17637 (2020)](https://doi.org/10.1038/s41598-020-74007-x)
 
 Together, these studies can be used to parameterise both the pig and human elements of a T. solium transmission model (where FoI estimates for pig and human infection exist for similar settings). 
