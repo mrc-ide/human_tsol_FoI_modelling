@@ -18,12 +18,16 @@ Diggle P (2011). Estimating Prevalence Using an Imperfect Test. Epidemiology Res
 
 ## Code guide
 
+The master script is split into:
+1) fitting to single datasets
+2) fitting to multiple datasets (this will estimate FoI/seroreversion or infection loss from each dataset, with a joint sensitivity and specifcity across datasets)
+
 
 ## Data availability
 
 Data to support this study can be accessed through the following data repository at Imperial College London: https://data.hpc.imperial.ac.uk/resolve/?doi=10047 
 
-## other related work
+## Other related work
 
 This is a complementary study to the pig cysticercosis FoI analysis conducted by this group and published in Scientific Reports: 
 
