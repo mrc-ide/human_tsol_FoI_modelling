@@ -8,7 +8,12 @@ The FoI describes the average (per capita) rate at which susceptible individuals
 
 This project presents the first analysis to estimate these rates for T. solium human cysticercosis and human taeniasis, across a range of epidmeiological settings, after identifying suitable age-(sero)prevalence data from a systematic literature review. Cataltyic models are fitted using a bayesian framework, incorporating uncertainty in diagnostic performance (sensitivity and specificty of each test used) using the formula given by Diggle, (2011). Markov chain Monte Carlo (MCMC) simulations are used to estimate posterior distributions for parameters of interest (FoI, seroreversion/infection loss and diagnostic sensitvity and specificty). Our analysis therefore assesses global variation in these important epidemiological quantities to inform development of transmission models, and to support control efforts.
 
-We provide here the code to support this analysis.
+We provide code to support this analysis wtihin this repository.
+
+Cataltyic models used to estimate rates in the paper are detailed in the following figure (full colour figure & parameter tables will become available after publication):
+
+![](./Images/Catalytic_models_GitHub_prepublication.jpg)
+
 
 References:
 
