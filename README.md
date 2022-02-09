@@ -30,7 +30,9 @@ The master script is split into:
 
 ## Data availability
 
-Data to support this study can be accessed through the following data repository at Imperial College London: https://data.hpc.imperial.ac.uk/resolve/?doi=10047 
+All age-(sero)prevalence data are available in the following data repository: http://doi.org/10.14469/hpc/10047 at Imperial College London. 
+Original data for two datasets available (under the Creative Commons Attribution License; CC BY 4.0) from the International Livestock Research Institute open-access repository (http://data.ilri.org/portal/dataset/ecozd) referenced in Holt et al. (2016) and University of Liverpool open-access repository
+(http://dx.doi.org/10.17638/datacat.liverpool.ac.uk/352) referenced in Fèvre et al. (2017).
 
 ## Other related work
 
